@@ -1,0 +1,2 @@
+Copied by scripts/sync-thesis.ps1 from the thesis-src submodule. Do not edit.
+Commit: 44086ba05274d65285f7094e66156457932670e8

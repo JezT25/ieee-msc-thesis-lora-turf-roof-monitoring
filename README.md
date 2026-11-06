@@ -2,7 +2,7 @@
 
 IEEE-format (IEEEtran, journal style) paper of the M.Sc. thesis *Design and Implementation of a Low-Power LoRa Wireless Sensor Mesh Network with Cloud Storage for Monitoring Soil Conditions on Icelandic Turf Roofs* by Jezreel V. Tan, University of Iceland.
 
-The thesis itself lives in [JezT25/msc-thesis-lora-turf-roof-monitoring](https://github.com/JezT25/msc-thesis-lora-turf-roof-monitoring) and is included here as the git submodule `thesis/`. This repository only contains the IEEE layout. The chapters, figures, and bibliography are read directly from the submodule, so a change in the thesis shows up here after updating the submodule.
+The thesis lives in [JezT25/msc-thesis-lora-turf-roof-monitoring](https://github.com/JezT25/msc-thesis-lora-turf-roof-monitoring) and is tracked here as the git submodule `thesis-src/`. Overleaf does not import submodules, so the files the paper needs are also copied into `thesis/` as plain files, and `main.tex` builds from that copy.
 
 ## Repository Structure
 
@@ -14,13 +14,17 @@ The thesis itself lives in [JezT25/msc-thesis-lora-turf-roof-monitoring](https:/
 │   ├── abstract.tex           IEEE abstract and keywords
 │   ├── conclusion.tex         IEEE conclusion
 │   └── backmatter.tex         Appendix (ThingSpeak channels) and acknowledgment
-├── scripts/
-│   └── make-overleaf-zip.ps1  Builds overleaf.zip and overleaf/ (generated, not committed)
-└── thesis/                    Submodule: msc-thesis-lora-turf-roof-monitoring
-    ├── chapters/              Used: introduction, literature review, methodology, results
-    ├── figs/                  Used: figures
-    └── references.bib         Used: bibliography
+├── thesis/                    Plain-file copy of what the paper uses (built by Overleaf)
+│   ├── chapters/              Introduction, literature review, methodology, results
+│   ├── figs/                  Only the figures the chapters use
+│   ├── references.bib         Bibliography
+│   └── UPSTREAM.txt           Thesis commit this copy was taken from
+├── thesis-src/                Submodule: the full thesis repository (not used by the build)
+└── scripts/
+    └── sync-thesis.ps1        Copies thesis-src/ into thesis/
 ```
+
+The thesis' own `main.tex`, README, cover banner, and appendix files are deliberately not copied into `thesis/`. The project therefore has exactly one `main.tex`.
 
 What comes from where:
 
@@ -29,8 +33,6 @@ What comes from where:
 | Introduction, review of related literature, methodology, results and discussion | `thesis/chapters/*.tex`, included as is |
 | Figures and bibliography | `thesis/figs/`, `thesis/references.bib` |
 | Title, abstract, conclusion, acknowledgment, ThingSpeak appendix | `main.tex` and `ieee/` (in the thesis these are part of its `main.tex`, which cannot be included) |
-
-The thesis abstract, conclusion, and appendix are rewritten for the paper. If their content changes in the thesis, update `ieee/abstract.tex`, `ieee/conclusion.tex`, and `ieee/backmatter.tex` by hand.
 
 ## Getting the Source
 
@@ -46,13 +48,34 @@ git submodule update --init
 
 ## Updating from the Thesis
 
-After changing the thesis repository, pull the new version into this one and commit the new submodule pointer:
+1. Update the submodule:
 
-```bash
-git submodule update --remote --merge thesis
-git add thesis
-git commit -m "Update thesis"
-```
+   ```bash
+   git submodule update --remote --merge thesis-src
+   ```
+
+2. Copy the thesis files into `thesis/`:
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File scripts/sync-thesis.ps1
+   ```
+
+3. Update the IEEE-specific text by hand if the thesis changed it: `ieee/abstract.tex`, `ieee/conclusion.tex`, `ieee/backmatter.tex`, and the title in `main.tex`. These are rewritten for the paper because in the thesis they are part of its `main.tex`, which cannot be included.
+4. Commit and push:
+
+   ```bash
+   git add -A
+   git commit -m "Update thesis"
+   git push
+   ```
+
+Never edit `thesis/` by hand; the next copy overwrites it.
+
+## Publishing on Overleaf
+
+1. Create the project once with **New Project > Import from GitHub** and pick this repository. The empty `thesis-src` submodule folder is ignored by Overleaf and does no harm.
+2. After pushing an update, open **Menu > GitHub** in Overleaf and **Pull GitHub changes into Overleaf**.
+3. Compile `main.tex` (pdfLaTeX, the default; Biber runs automatically).
 
 ## Building Locally
 
@@ -61,23 +84,6 @@ Requires a TeX distribution with `pdflatex`, `biber`, and `latexmk`:
 ```bash
 latexmk -pdf main.tex
 ```
-
-## Publishing on Overleaf
-
-Overleaf does not support git submodules, so a project imported from this repository through GitHub sync has an empty `thesis/` folder and fails with `File 'thesis/chapters/01_introduction.tex' not found`. Fix it with a self-contained bundle:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/make-overleaf-zip.ps1
-```
-
-The script creates `overleaf.zip` and an unzipped copy in `overleaf/`. Either:
-
-- use **New Project > Upload Project** with `overleaf.zip`, or
-- if the project was imported from GitHub, delete the empty `thesis` folder (the submodule) in Overleaf and upload the `overleaf/thesis` folder in its place.
-
-Overleaf then compiles `main.tex` as is (pdfLaTeX, Biber). To refresh the thesis content later, update the submodule, re-run the script, and replace the `thesis` folder in Overleaf. Do not push the generated `overleaf/` folder or the flattened `thesis/` back to GitHub; the repository keeps the submodule.
-
-The bundle contains the same paths as this repository (`main.tex`, `ieee/`, `thesis/chapters/`, `thesis/figs/`, `thesis/references.bib`), but it deliberately leaves out the thesis' own `main.tex`, README, cover banner, and other files that the IEEE document does not use. The project therefore has exactly one `main.tex`, and the thesis layout cannot interfere with the IEEE output.
 
 ## How the Thesis Chapters Are Reused
 

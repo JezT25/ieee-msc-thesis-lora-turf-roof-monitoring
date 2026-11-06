@@ -1,3 +1,3 @@
-[submodule "thesis"]
-	path = thesis
+[submodule "thesis-src"]
+	path = thesis-src
 	url = https://github.com/JezT25/msc-thesis-lora-turf-roof-monitoring.git
