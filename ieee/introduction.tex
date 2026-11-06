@@ -1,0 +1,14 @@
+\section{Introduction}
+Icelandic turf houses are an important part of the country's cultural heritage, but their turf and timber components are prone to rot and need regular renewal \cite{ref10,ref06}. Moisture beneath a turf roof is therefore a useful indicator for conservators. Measuring it by hand is slow and disturbs the site, and professional time-domain and frequency-domain reflectometry instruments can cost hundreds or thousands of dollars \cite{ref19}. The Keldur turf-house site, made available by the National Museum of Iceland for this work, is far from the research facilities, which makes frequent visits to read instruments impractical.
+
+This paper presents a low-cost, low-power wireless sensor network that measures soil moisture, soil temperature, air temperature, relative humidity, and battery voltage beneath turf roofs and makes the data available remotely. The sensor nodes are concealed under the turf and communicate over 433~MHz LoRa with mesh relaying. A base station forwards the measurements to the ThingSpeak cloud platform. The system is built from off-the-shelf components and is meant to be an affordable option for small research teams and individual projects, not a replacement for professional monitoring equipment.
+
+The contributions of this work are:
+\begin{itemize}
+\item a sensor node and base station built from off-the-shelf parts and a custom PCB, designed to be buried under turf and to run unattended on batteries;
+\item a lightweight, ledger-based LoRa mesh protocol for an 8-bit microcontroller, with obfuscated packets, collision avoidance, RTC-synchronized duty cycling, and local SD-card backup;
+\item laboratory and field evaluations of power consumption, LoRa range, soil-moisture calibration, and cloud upload; and
+\item a deployment of four nodes at Keldur, reported together with its limitations.
+\end{itemize}
+
+The rest of the paper is organized as follows. Section~II reviews related work, Section~III describes the system, Section~IV the experimental methodology, and Section~V the results. Section~VI concludes.

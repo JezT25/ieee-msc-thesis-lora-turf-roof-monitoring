@@ -5,8 +5,10 @@
 \usepackage{lmodern}
 \usepackage[english]{babel}
 \usepackage{microtype}
-
-\usepackage{ieee/thesis-compat}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{array}
 
 \usepackage[backend=biber,style=ieee,sorting=none]{biblatex}
 \usepackage{csquotes}
@@ -18,36 +20,27 @@
 \usepackage{xurl}
 \usepackage[pdfborder={0 0 0}]{hyperref}
 
-\hyphenation{Hafnarfj-ör-ður}
+% Figures are stored in the thesis copy; refer to them by file name.
+\graphicspath{{thesis/figs/}}
 
 \begin{document}
 
 \title{Design and Implementation of a Low-Power LoRa Wireless Sensor Mesh Network with Cloud Storage for Monitoring Soil Conditions on Icelandic Turf Roofs}
 
 \author{Jezreel~V.~Tan%
-  \thanks{J.~V.~Tan is with the Faculty of Electrical and Computer Engineering, School of Engineering and Natural Sciences, University of Iceland, Reykjav{\'\i}k, Iceland. This paper is based on his M.Sc. thesis, supervised by Helgi {\TH}orbergsson, Ph.D., and D{\'o}r{\'o}tea H{\"o}eg Sigur{\dh}ard{\'o}ttir.}}
+  \thanks{J.~V.~Tan is with the Faculty of Electrical and Computer Engineering, School of Engineering and Natural Sciences, University of Iceland, Reykjav{\'\i}k, Iceland. This paper is a condensed version of his M.Sc. thesis, supervised by Helgi {\TH}orbergsson, Ph.D., and D{\'o}r{\'o}tea H{\"o}eg Sigur{\dh}ard{\'o}ttir.}}
 
 \markboth{Low-Power LoRa Mesh Network for Icelandic Turf Roofs}{Tan: Low-Power LoRa Mesh Network for Icelandic Turf Roofs}
 
 \maketitle
 
 \input{ieee/abstract}
-
-\section{Introduction}
-\thesisinput{01_introduction}
-
-\section{Review of Related Literature}
-\thesisinput{02_rrl}
-
-\section{Methodology}
-\thesisinput{03_methodology}
-
-\section{Results and Discussion}\label{chap:results}
-\thesisinput{04_results}
-
-\section{Conclusion and Recommendations}
+\input{ieee/introduction}
+\input{ieee/related-work}
+\input{ieee/system-design}
+\input{ieee/methodology}
+\input{ieee/results}
 \input{ieee/conclusion}
-
 \input{ieee/backmatter}
 
 \printbibliography[title={References}]

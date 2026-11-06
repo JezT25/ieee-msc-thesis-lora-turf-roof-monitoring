@@ -1,0 +1,137 @@
+\section{Results and Discussion}
+\subsection{Power Consumption and Battery Life}
+Table~\ref{tab:power} gives the measured current in each state and the duration of each state per hour in the operating cycle. The 60~s radio-active period is a conservative allocation that covers receiving, transmitting and relaying packets, processing, and radio state changes. It is not the 0.985~s airtime of a single packet. The weighted average current is
+\begin{equation}
+I_{avg}=\frac{\sum_n I_n t_n}{3600~\text{s}}\approx 3.08~\text{mA}
+\label{eq:iavg}
+\end{equation}
+(that is, $(990+28.5+7170+2891.4)/3600$ with $I_n$ in mA and $t_n$ in s).
+
+\begin{table}[!t]
+\renewcommand{\arraystretch}{1.1}
+\caption{Operating states, measured current, and duration per hour}
+\label{tab:power}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.40\columnwidth}cc}
+\toprule
+State & Current (mA) & Duration per hour \\
+\midrule
+Deep sleep & 0.3 & 55 min \\
+Awake, sensors on, LoRa off & 9.5 & 3 s \\
+LoRa RX/TX (allocation) & 119.5 & 60 s \\
+Half-sleep (radio listening) & 12.2 & 237 s \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+With three 3,500~mAh cells (10,500~mAh), the idealized lifetime is $10{,}500/3.08\approx 3{,}409$~h, about 142 days, and a single cell would last about 47 days. The estimate ignores the loss of usable capacity at low temperatures and is therefore optimistic for Iceland. The SD-card logs of the single-cell preliminary tests show logged operating periods of about 11--27 days per node, the longest being 26.8 days (HW\_1, 4.136~V falling to 3.560~V). These are observed operating durations under development firmware, not measured battery lifetimes, and they are not extrapolated to the three-cell configuration.
+
+\subsection{LoRa Range}
+Single-hop communication was observed at several test locations within approximately 3~km in the semi-urban Vellir area (Fig.~\ref{fig:coverage}). Average RSSI ranged from $-103$ to $-113$~dBm (Table~\ref{tab:rssi}). Signal quality improved when the transmitting node was elevated, whereas dense residential areas with obstructed lines of sight showed degradation and occasional packet loss. Replacing the initial antennas, which were designed for Wi-Fi rather than 433~MHz, with 433~MHz LoRa antennas substantially improved range and reliability. Packet-delivery percentages and per-location packet counts were not recorded, so the results do not show that the whole 3~km area was uniformly reliable, and the coverage map is indicative rather than a measured boundary. The range test did not exercise mesh relaying.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{results-image5.png}
+\caption{Estimated, indicative LoRa coverage for the Vellir test. Blue: estimated successful communication within about 3~km. Red: weak or absent signal due to terrain and structures.}
+\label{fig:coverage}
+\end{figure}
+
+\begin{table}[!t]
+\renewcommand{\arraystretch}{1.1}
+\caption{Average RSSI at the range-test locations}
+\label{tab:rssi}
+\centering
+\footnotesize
+\begin{tabular}{lc}
+\toprule
+Location & Average RSSI (dBm) \\
+\midrule
+{\'A}svallalaug & $-113$ \\
+Holt & $-103$ \\
+Fish drying area & $-112$ \\
+Vatnsl{\'\i}{\dh} & $-103$ \\
+Netto & $-112$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Preliminary Field Tests}
+The preliminary tests were an engineering validation phase, and their data are not suitable for scientific analysis. The nodes tracked the broad trends of the nearby stations, but the datasets had interruptions and missing samples, mainly because of the mismatched antennas, which were replaced before the final deployment. Soil-moisture values were erratic and sometimes unrealistic because calibration and firmware scaling were still in progress. Relative humidity still showed occasional 0\% and 100\% readings in the intermediate test, attributed to firmware and sensor initialization issues. The SD-card backup worked as intended: measurements stored on the card were used to fill blanks left by missed transmissions. Mesh relaying was observed during the benchtop test, where ledger data were seen being forwarded between nodes until they reached the base station. That observation is qualitative, because the debug logs were not retained and the topology, spacing, hop count, and delivery rate were not recorded. No multi-hop range or reliability is therefore claimed.
+
+\subsection{Soil Moisture Calibration}
+Table~\ref{tab:calib} lists the Test 1 data. The fitted model is
+\begin{equation}
+\text{SM}\,(\%)=0.0006877\,\text{ADC}^{2}-0.5961\,\text{ADC}+127.70,
+\label{eq:poly}
+\end{equation}
+and it reproduces the gravimetric values with an RMSE of about 3.01 percentage points over the 0--40\% range. This is an in-sample fit error, not an independent validation. The ADC value falls as moisture rises, as expected for a capacitive sensor, and the response flattens toward saturation. HOBO VWC values (0.01 to 0.39~m$^3$/m$^3$ across the five levels) are volumetric and cannot be compared with gravimetric percentages without the soil bulk density, which was not measured, so no error metric against the HOBO is reported.
+
+\begin{table}[!t]
+\renewcommand{\arraystretch}{1.1}
+\caption{Calibration Test 1 (mean of two sensors) and polynomial output}
+\label{tab:calib}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{cccc}
+\toprule
+Gravimetric (\%) & Mean ADC & HOBO VWC & Polynomial (\%) \\
+\midrule
+0 & 484.89 & 0.01 & 0.35 \\
+10 & 319.36 & 0.18 & 7.47 \\
+20 & 235.73 & 0.28 & 25.40 \\
+30 & 219.97 & 0.335 & 29.85 \\
+40 & 197.18 & 0.39 & 36.90 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The calibration used a separate Icelandic soil sample, not soil from Keldur. Most Keldur readings fall outside the calibrated ADC range of 197.18--484.89: the median raw values were about 527, 575, 768, and 568 for nodes 1, 3, 5, and 7, and only about 31.1\% of node 1 and 0.8\% of node 3 readings lie within the range, with none for nodes 5 and 7. The moisture values converted for Keldur are therefore extrapolations and indicate relative changes only, not validated moisture content. Calibration with soil from the deployment locations and independent reference measurements is needed.
+
+\subsection{Cloud Upload}
+Uploads to ThingSpeak returned HTTP 200 OK in the controlled tests, with an average upload time of about 1--2~s depending on network conditions, which suits an hourly collection cycle. These tests do not establish uninterrupted cloud availability or upload success during the Keldur deployment.
+
+\subsection{Keldur Deployment}
+All four nodes delivered valid records after the installation on 17 October 2025, over first-to-last spans of about 51 to 130 days (Table~\ref{tab:keldur}). These spans include gaps and are not uninterrupted operating times or confirmed battery lifetimes. The last valid battery voltages (3.49--3.93~V) were all above the configured 3.25~V cutoff, and the nodes were not retrieved, so the reason each node stopped reporting is unknown and battery depletion cannot be named as the cause. Nodes 1, 3, and 5 showed a common interruption of about 145 hours between 17 and 23 December 2025, which cannot be attributed to the radio link, the base station, or the internet connection because no base-station logs were retained. All-zero entries in the ThingSpeak feeds are placeholders for missing data, not real readings.
+
+\begin{table}[!t]
+\renewcommand{\arraystretch}{1.1}
+\caption{Valid ThingSpeak record spans and final battery voltage at Keldur}
+\label{tab:keldur}
+\centering
+\footnotesize
+\begin{tabular}{cccc}
+\toprule
+Node & Last valid record & Span (days) & Final battery (V) \\
+\midrule
+1 & 26 Dec 2025 & 70.8 & 3.63 \\
+3 & 23 Feb 2026 & 129.5 & 3.49 \\
+5 & 2 Jan 2026 & 77.5 & 3.78 \\
+7 & 6 Dec 2025 & 50.9 & 3.93 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Fig.~\ref{fig:keldur-map} shows the installation layout, and Fig.~\ref{fig:keldur-temps} compares the measured temperatures with the Sámsstaðir station. Air temperature from the externally mounted sensors (nodes 5 and 7) followed the broad variations of the station and showed clearer daily fluctuations than the enclosed sensors (nodes 1 and 3), whose curves were smoother. The mean absolute difference to the station was 3.06--3.27~$^\circ$C. The station is 9.75~km away, so this is a difference between locations and not a sensor accuracy figure. A co-located reference is needed to judge accuracy, and the deployment was not a controlled comparison of sensor placement, so the preference for external placement is only suggested. Soil temperature behaved alike on all four nodes and stayed close to 0~$^\circ$C while air temperature varied between about $-8$ and $+10~^\circ$C, which shows the thermal buffering of the soil and turf. Node 3 reported relative humidity near 100\% for an extended period toward the end of its record, which cannot be treated as reliable, and the cause is unknown.
+
+The mesh algorithm was enabled on all nodes, but without packet logs it is not possible to tell whether measurements arrived directly or through another node, so no route statistics are reported. The SD cards of the Keldur nodes have not been retrieved, so the backup cannot be said to have recovered the missing Keldur records.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{results-image6.png}
+\caption{Locations and installation depths of the four sensor nodes at Keldur.}
+\label{fig:keldur-map}
+\end{figure}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=0.72\textwidth]{results-image7.png}\\[2pt]
+\includegraphics[width=0.72\textwidth]{results-image9.png}
+\caption{Keldur deployment: air temperature (top) and soil temperature (bottom) of the four nodes compared with the Sámsstaðir station (6222). The station's ground-level temperature is the soil reference.}
+\label{fig:keldur-temps}
+\end{figure*}
+
+\subsection{Limitations}
+The main limitations are: mesh relaying was observed only qualitatively and no multi-hop performance is quantified; the single-hop range test lacks packet-delivery statistics; the soil-moisture calibration is in-sample, uses soil from another site, and does not cover most Keldur readings; air and soil temperatures were compared with distant stations rather than a co-located reference; and the unretrieved nodes leave the reasons for lost reports open. The deployment used only four nodes.

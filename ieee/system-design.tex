@@ -1,0 +1,66 @@
+\section{System Design}
+\subsection{Requirements and Constraints}
+Turf houses may serve as museums, so the system must be discreet: the sensor nodes are concealed beneath the turf and the installation must be non-destructive. The nodes must measure soil moisture, soil temperature, air temperature, and relative humidity, relay data reliably despite noise and disturbances, run unattended for long periods because maintenance is sparse, back up data locally when transmissions are missed, and upload data to a cloud service. The original design target was a burial depth of about 11~cm, possibly under snow, with weatherproofing against rain and repeated freezing and thawing. Fig.~\ref{fig:concept} shows the system concept.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{method-image1.png}
+\caption{System concept: buried sensor nodes relay measurements over LoRa to a base station, which uploads them to the cloud.}
+\label{fig:concept}
+\end{figure}
+
+\subsection{Sensor Node}
+Low cost and low power drove the component choice, and every component runs at 3.3~V or below. Table~\ref{tab:components} lists the main parts and Fig.~\ref{fig:node} shows the node.
+
+\begin{table}[!t]
+\renewcommand{\arraystretch}{1.1}
+\caption{Main components of a sensor node}
+\label{tab:components}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.25\columnwidth}>{\raggedright\arraybackslash}p{0.60\columnwidth}}
+\toprule
+Function & Component \\
+\midrule
+Microcontroller & Arduino Pro Mini (ATmega328P, 3.3~V, 8~MHz, 32~kB flash) \\
+Radio & Ra-02 (SX1278), 433~MHz, 3~dBi antenna \\
+Soil moisture & Capacitive soil moisture sensor v1.2 (analog, 10-bit ADC) \\
+Soil temperature & DS18B20 waterproof probe (1-Wire, $\pm0.5~^\circ$C) \\
+Air temperature and humidity & AHT10 (I$^2$C, $\pm0.3~^\circ$C, $\pm2\%$ RH) \\
+Local storage & SparkFun OpenLog serial logger, microSD \\
+Clock & DS3231 RTC with alarm interrupt \\
+Power & Three 18650 Li-ion cells in parallel (3 $\times$ 3,500~mAh) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+An Arduino Pro Mini was chosen over an ESP32, which draws more power, costs more, and offers more computing capability than needed. After removing the on-board LEDs, it draws about 4.5~mA when active and about 3~$\mu$A in deep sleep. The DS3231 wakes the microcontroller from deep sleep through its alarm interrupt. The OpenLog module has its own microcontroller, so SD logging uses little of the node's scarce flash memory. A capacitive sensor was chosen over a resistive one for its better reliability and resistance to corrosion in moist soil. Three 18650 cells in parallel give a nominal capacity of 10,500~mAh. Battery voltage is read through a voltage divider ($R_1=10~\text{k}\Omega$, $R_2=33~\text{k}\Omega$) on an analog pin.
+
+To save energy, two MOSFET switches cut power to the sensors and to the LoRa module during sleep. A three-bit DIP switch sets the hardware ID, so up to eight sensor nodes can share one network. All parts except the batteries sit on a custom two-layer, 50.5~mm $\times$ 50.5~mm PCB manufactured by JLCPCB, with pin headers for the sensors to ease assembly and replacement. The assembly is sealed in a weatherproof enclosure with silicone at all seams and cable entries. Two enclosure variants were built: one with the antenna and air sensor inside the enclosure, and one with an external, cable-connected enclosure that places the antenna and air sensor above ground. The bill of materials for one node totals ISK~11,921.44 for the priced components.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{method-image2.png}
+\caption{Sensor node hardware configuration and component layout.}
+\label{fig:node}
+\end{figure}
+
+\subsection{Base Station}
+The base station is a LOLIN D1 mini (ESP8266, 80~MHz, 4~MB flash, Wi-Fi) with the same Ra-02 module as the nodes. A Raspberry Pi was considered but judged excessive and costly for this task. The base station is powered from a mains outlet, obtains the time from an NTP server over Wi-Fi, starts a collection round every hour, broadcasts the time to the nodes afterwards, and uploads the collected data to the cloud.
+
+\subsection{Firmware and Mesh Protocol}
+The firmware is written in C/C++ with the Arduino IDE using an object-oriented structure, and is publicly available (see Data and Code Availability).
+
+\textit{Duty cycle.} A node sleeps deeply between rounds and is woken by its RTC. It powers the sensors, reads them, transmits and relays packets, and returns to sleep. Wake-up, sensor acquisition, and shutdown take about 3.1~s, and a node stays active for at most 5 minutes per hour. Every hour the base station sends the NTP time, and the nodes update their RTCs so that they wake together.
+
+\textit{Ledger-based mesh.} The design is inspired by distributed ledgers but implements no consensus mechanism. The base station broadcasts an empty ledger. Each node keeps a local copy, and a fixed slot in the ledger is reserved for each hardware ID. When a node receives a valid ledger, it merges any values it does not yet hold, keeps its existing entries, fills in its own data, recomputes the checksum, and rebroadcasts it if the received ledger differed from its local database. A ledger identical to the local database is ignored, which prevents endless rebroadcasting. Because a node can fill gaps with data it already holds, a missing entry does not have to travel back through every hop. Data can reach the base station directly or through intermediate nodes, and the loss of a single packet is recoverable from neighboring nodes in later transmissions.
+
+\textit{Packet format.} A packet carries 96 bytes of human-readable, fixed-width text: a header that names the data type (air temperature, relative humidity, soil temperature, soil moisture, battery voltage, or time synchronization), one comma-separated field per node in the range $-99.9999$ to $999.9999$, and a checksum equal to the sum of the node values. Text was chosen to make routing and formatting errors easy to find, at the cost of airtime; a packed binary format would be preferable in production. Packets are obfuscated with RC4. AES was too slow on the ATmega328P, and RC4 is not secure enough for high-security use, so this is basic obfuscation only.
+
+\textit{Collision avoidance.} Because the radio cannot transmit and receive at the same time, nodes use CSMA/CA. A node checks the channel noise before transmitting and otherwise waits. Each node multiplies a base timeout by its hardware ID so that timeouts differ, and a node that receives a valid packet while waiting re-evaluates it and restarts its timeout. Rare simultaneous transmissions are still possible.
+
+\textit{Radio configuration.} The nodes use 433~MHz, 17~dBm, 125~kHz bandwidth, spreading factor 10, coding rate 4/5, an 8-symbol preamble, and sync word 0x12. The symbol time is $T_{sym}=2^{SF}/BW=8.192$~ms. For the 96-byte payload, the Semtech time-on-air equations \cite{semtech2020sx1276} give 108 payload symbols (with the payload CRC enabled, explicit header, and LowDataRateOptimize off) and a total packet time of $T_{packet}=(8+4.25)T_{sym}+108\,T_{sym}\approx 0.985$~s.
+
+\subsection{Cloud Integration}
+The base station uploads each node's data to ThingSpeak with an HTTP GET request to the update API, using one channel and write API key per node. ThingSpeak was preferred over AWS or Azure, which were considered too complex and costly for this project, because it provides storage and visualization, and the expected data rate fits its free tier.
