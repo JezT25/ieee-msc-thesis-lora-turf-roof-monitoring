@@ -1,0 +1,79 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{ieee/thesis-compat}[2026/11/06 Typeset the one-column thesis chapters unchanged inside IEEEtran]
+
+% Packages and settings the thesis chapters rely on.
+\RequirePackage{etoolbox}
+\RequirePackage{graphicx}
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{array}
+\RequirePackage{calc}
+\RequirePackage{tabularx}
+\RequirePackage{booktabs}
+\RequirePackage{longtable}
+\RequirePackage{xcolor}
+\RequirePackage{listings}
+\RequirePackage{environ}
+\RequirePackage{adjustbox}
+
+\DeclareUnicodeCharacter{2212}{\ensuremath{-}}
+\DeclareUnicodeCharacter{00B0}{\ensuremath{^\circ}}
+\DeclareUnicodeCharacter{00B1}{\ensuremath{\pm}}
+\DeclareUnicodeCharacter{03B5}{\ensuremath{\varepsilon}}
+\DeclareUnicodeCharacter{03BC}{\ensuremath{\mu}}
+\DeclareUnicodeCharacter{00B3}{\ensuremath{^3}}
+
+\lstset{basicstyle=\ttfamily\scriptsize,breaklines=true,columns=fullflexible}
+\renewcommand{\lstlistingname}{Code Snippet}
+
+% Chapter files use paths such as figs/x.png relative to the thesis root.
+\graphicspath{{thesis/}}
+
+% longtable refuses to run in two-column mode; tell it the column is a single page.
+\AtBeginEnvironment{longtable}{\@twocolumnfalse\footnotesize}
+\setlength{\LTcapwidth}{\columnwidth}
+% Give longtable captions the IEEEtran table caption look ("TABLE I" over a small-caps title).
+\long\def\LT@makecaption#1#2#3{%
+  \LT@mcol\LT@cols c{\hbox to\z@{\hss\parbox[t]\LTcapwidth{%
+    \centering\footnotesize\MakeUppercase{\tablename}~\thetable\\[2pt]\scshape #3\par\vskip\baselineskip}\hss}}}
+
+% The thesis equations are sized for a full-width text block; shrink those wider than a column.
+\let\thesis@eqbegin\equation
+\let\thesis@eqend\endequation
+\RenewEnviron{equation}{%
+  \thesis@eqbegin
+  \adjustbox{max width=\dimexpr\columnwidth-3em\relax}{$\displaystyle\BODY$}%
+  \thesis@eqend}
+
+% Replacement for the obsolete subfigure package's \subfigure[caption]{image}.
+\newcounter{thesis@subfig}
+\newcommand{\subfigure}[2][]{%
+  \stepcounter{thesis@subfig}%
+  \begin{minipage}[t]{\linewidth}\centering
+    #2\par\vspace{2pt}%
+    {\footnotesize (\alph{thesis@subfig}) #1\par}%
+  \end{minipage}}
+
+% Unnumbered run-in heading for \paragraph and \subparagraph in the chapter files.
+\newcommand{\thesis@runin}[1]{\par\smallskip\noindent\textit{#1}\ \ignorespaces}
+
+% \thesisinput{<file>} typesets thesis/chapters/<file>.tex as one IEEE section:
+% thesis section levels move down one level (\section -> \subsection, ...), floats span
+% both columns so that the \textwidth-based sizes in the chapters keep working, and
+% \clearpage is disabled because it would leave half-empty columns.
+\newcommand{\thesisinput}[1]{%
+  \begingroup
+    \let\clearpage\relax
+    \let\thesis@sub\subsection
+    \let\thesis@subsub\subsubsection
+    \let\section\thesis@sub
+    \let\subsection\thesis@subsub
+    \let\subsubsection\paragraph
+    \let\paragraph\thesis@runin
+    \let\subparagraph\thesis@runin
+    \renewenvironment{figure}[1][]{\begin{figure*}[!tp]\setcounter{thesis@subfig}{0}}{\end{figure*}}%
+    \renewenvironment{table}[1][]{\begin{table*}[!tp]}{\end{table*}}%
+    \input{thesis/chapters/#1}%
+  \endgroup}
+
+\endinput

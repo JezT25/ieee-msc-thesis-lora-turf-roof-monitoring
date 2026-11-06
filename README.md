@@ -1,79 +1,93 @@
-# Design and Implementation of a Low-Power LoRa Wireless Sensor Mesh Network with Cloud Storage for Monitoring Soil Conditions on Icelandic Turf Roofs
+# IEEE Version: Low-Power LoRa Wireless Sensor Mesh Network for Monitoring Soil Conditions on Icelandic Turf Roofs
 
-M.Sc. thesis in Electrical and Computer Engineering, University of Iceland (60 ECTS)
+IEEE-format (IEEEtran, journal style) paper of the M.Sc. thesis *Design and Implementation of a Low-Power LoRa Wireless Sensor Mesh Network with Cloud Storage for Monitoring Soil Conditions on Icelandic Turf Roofs* by Jezreel V. Tan, University of Iceland.
 
-**Author:** Jezreel V. Tan
-**Supervisors:** Helgi Þorbergsson, Ph.D.; Dórótea Höeg Sigurðardóttir
-**Faculty:** Electrical and Computer Engineering, School of Engineering and Natural Sciences, University of Iceland
-**Expected submission:** February 2027
-
-## Abstract
-
-This thesis presents the design, implementation, and evaluation of a low-cost, low-power wireless sensor network for monitoring soil and environmental conditions beneath Icelandic turf roofs. Sensor nodes are concealed under the turf, communicate over 433 MHz LoRa, and forward measurements to a base station that uploads them to the ThingSpeak cloud platform for remote access. The system was evaluated through laboratory power measurements, field range tests, sensor calibration, cloud-upload tests, and a long-term deployment at the Keldur turf-house site in cooperation with the National Museum of Iceland.
-
-## System Overview
-
-| Component | Description |
-| --- | --- |
-| Sensor node | Arduino Pro Mini (ATmega328P), Ra-02 (SX1278) 433 MHz LoRa module, DS3231 real-time clock, SD-card storage |
-| Sensors | Capacitive soil moisture, DS18B20 soil temperature, AHT10 air temperature and relative humidity, battery voltage |
-| Base station | LOLIN D1 mini (ESP8266) with Ra-02 LoRa module and Wi-Fi uplink |
-| Networking | LoRa mesh with relay functionality; packets obfuscated with a lightweight RC4 routine |
-| Cloud | ThingSpeak (HTTP) |
-| Firmware | Arduino IDE; sensor node and base station firmware in [JezT25/turfroof_lora](https://github.com/JezT25/turfroof_lora) |
-| Hardware | Custom PCB design |
-
-## Key Results
-
-| Area | Result |
-| --- | --- |
-| Power consumption | Weighted average current of approximately 3.08 mA under the defined operating cycle |
-| Estimated battery life | Approximately 142 days with 3 × 3,500 mAh cells in parallel (10,500 mAh nominal); idealized estimate that excludes low-temperature capacity loss |
-| LoRa range (Vellir, Hafnarfjörður) | Successful single-hop communication at several locations within approximately 3 km; RSSI from −103 dBm to −113 dBm; occasional packet loss in obstructed areas |
-| Soil moisture calibration | Second-order polynomial over the 0–40 % gravimetric range; in-sample RMSE of approximately 3.01 percentage points |
-| Cloud upload | HTTP 200 OK responses; average upload time of approximately 1–2 seconds |
-| Keldur deployment | Four nodes beneath four turf roofs; first-to-last valid record spans of approximately 51 to 130 days |
-
-Mesh relay behavior was observed qualitatively on the bench; no multi-hop range is reported.
-
-## Research Objectives
-
-1. Implement distributed sensor nodes for soil moisture, soil temperature, air temperature, relative humidity, and battery voltage.
-2. Implement LoRa communication and evaluate range and field operation.
-3. Measure node current consumption and estimate battery life.
-4. Implement and evaluate local data storage.
-5. Develop and evaluate a calibration model for the capacitive soil moisture sensor.
-6. Integrate the network with a cloud platform and evaluate upload behavior.
+The thesis itself lives in [JezT25/msc-thesis-lora-turf-roof-monitoring](https://github.com/JezT25/msc-thesis-lora-turf-roof-monitoring) and is included here as the git submodule `thesis/`. This repository only contains the IEEE layout. The chapters, figures, and bibliography are read directly from the submodule, so a change in the thesis shows up here after updating the submodule.
 
 ## Repository Structure
 
 ```text
 .
-├── main.tex            Main document: metadata, front matter, chapter inclusion, conclusion
-├── references.bib      Bibliography (BibLaTeX/Biber)
-├── chapters/
-│   ├── 01_introduction.tex
-│   ├── 02_rrl.tex      Review of related literature
-│   ├── 03_methodology.tex
-│   └── 04_results.tex
-├── appendix/           Bill of Materials
-└── figs/               Figures, photographs, and the University of Iceland banner
+├── main.tex                   IEEE document (the only main file)
+├── ieee/
+│   ├── thesis-compat.sty      Typesets the thesis chapters unchanged inside IEEEtran
+│   ├── abstract.tex           IEEE abstract and keywords
+│   ├── conclusion.tex         IEEE conclusion
+│   └── backmatter.tex         Appendix (ThingSpeak channels) and acknowledgment
+├── scripts/
+│   └── make-overleaf-zip.ps1  Builds the Overleaf upload bundle
+└── thesis/                    Submodule: msc-thesis-lora-turf-roof-monitoring
+    ├── chapters/              Used: introduction, literature review, methodology, results
+    ├── figs/                  Used: figures
+    └── references.bib         Used: bibliography
 ```
 
-## Firmware
+What comes from where:
 
-The sensor node and base station firmware used in this thesis is available at [github.com/JezT25/turfroof_lora](https://github.com/JezT25/turfroof_lora).
-
-## Data
-
-Measurements from the Keldur deployment are published on ThingSpeak (channel author: `jvt6hiis`), one channel per sensor node.
-
-| Node | Channel |
+| Content | Source |
 | --- | --- |
-| HW_1 | [2974951](https://thingspeak.mathworks.com/channels/2974951) |
-| HW_3 | [2974954](https://thingspeak.mathworks.com/channels/2974954) |
-| HW_5 | [2974955](https://thingspeak.mathworks.com/channels/2974955) |
-| HW_7 | [2974956](https://thingspeak.mathworks.com/channels/2974956) |
+| Introduction, review of related literature, methodology, results and discussion | `thesis/chapters/*.tex`, included as is |
+| Figures and bibliography | `thesis/figs/`, `thesis/references.bib` |
+| Title, abstract, conclusion, acknowledgment, ThingSpeak appendix | `main.tex` and `ieee/` (in the thesis these are part of its `main.tex`, which cannot be included) |
+
+The thesis abstract, conclusion, and appendix are rewritten for the paper. If their content changes in the thesis, update `ieee/abstract.tex`, `ieee/conclusion.tex`, and `ieee/backmatter.tex` by hand.
+
+## Getting the Source
+
+```bash
+git clone --recurse-submodules https://github.com/JezT25/ieee-msc-thesis-lora-turf-roof-monitoring.git
+```
+
+If the repository was cloned without `--recurse-submodules`:
+
+```bash
+git submodule update --init
+```
+
+## Updating from the Thesis
+
+After changing the thesis repository, pull the new version into this one and commit the new submodule pointer:
+
+```bash
+git submodule update --remote --merge thesis
+git add thesis
+git commit -m "Update thesis"
+```
+
+## Building Locally
+
+Requires a TeX distribution with `pdflatex`, `biber`, and `latexmk`:
+
+```bash
+latexmk -pdf main.tex
+```
+
+## Publishing on Overleaf
+
+Overleaf does not support git submodules, so importing this repository through GitHub sync would leave `thesis/` empty. Upload a self-contained bundle instead:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/make-overleaf-zip.ps1
+```
+
+Then use **New Project > Upload Project** on Overleaf and select the generated `overleaf.zip`. If you ever update the project later, re-run the script and upload again.
+
+The bundle contains the same paths as this repository (`main.tex`, `ieee/`, `thesis/chapters/`, `thesis/figs/`, `thesis/references.bib`), but it deliberately leaves out the thesis' own `main.tex`, README, cover banner, and other files that the IEEE document does not use. The project therefore has exactly one `main.tex`, and the thesis layout cannot interfere with the IEEE output. The compiler should be pdfLaTeX (the Overleaf default), and the bibliography is handled by Biber automatically.
+
+## How the Thesis Chapters Are Reused
+
+The chapter files are written for a one-column report class. `ieee/thesis-compat.sty` adapts them without editing them:
+
+- Thesis sections become IEEE subsections, subsections become sub-subsections, and so on, because each chapter becomes one IEEE section.
+- Figures and tables span both columns, which keeps the `\textwidth`-based sizes of the chapters working.
+- `\clearpage` is disabled inside the chapters to avoid half-empty columns.
+- `\subfigure` and `longtable` are made to work in two-column mode.
+
+Known limitations of this approach:
+
+- Text in the chapters that says "Chapter N" is not changed to "Section N".
+- The bibliography uses `biblatex` with the `ieee` style so that the thesis `references.bib` can be used as is.
+- The thesis appendix (bill of materials) and the Icelandic abstract are not part of the paper.
 
 ## Copyright
 
