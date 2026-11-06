@@ -15,7 +15,7 @@ The thesis itself lives in [JezT25/msc-thesis-lora-turf-roof-monitoring](https:/
 │   ├── conclusion.tex         IEEE conclusion
 │   └── backmatter.tex         Appendix (ThingSpeak channels) and acknowledgment
 ├── scripts/
-│   └── make-overleaf-zip.ps1  Builds the Overleaf upload bundle
+│   └── make-overleaf-zip.ps1  Builds overleaf.zip and overleaf/ (generated, not committed)
 └── thesis/                    Submodule: msc-thesis-lora-turf-roof-monitoring
     ├── chapters/              Used: introduction, literature review, methodology, results
     ├── figs/                  Used: figures
@@ -64,15 +64,20 @@ latexmk -pdf main.tex
 
 ## Publishing on Overleaf
 
-Overleaf does not support git submodules, so importing this repository through GitHub sync would leave `thesis/` empty. Upload a self-contained bundle instead:
+Overleaf does not support git submodules, so a project imported from this repository through GitHub sync has an empty `thesis/` folder and fails with `File 'thesis/chapters/01_introduction.tex' not found`. Fix it with a self-contained bundle:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/make-overleaf-zip.ps1
 ```
 
-Then use **New Project > Upload Project** on Overleaf and select the generated `overleaf.zip`. If you ever update the project later, re-run the script and upload again.
+The script creates `overleaf.zip` and an unzipped copy in `overleaf/`. Either:
 
-The bundle contains the same paths as this repository (`main.tex`, `ieee/`, `thesis/chapters/`, `thesis/figs/`, `thesis/references.bib`), but it deliberately leaves out the thesis' own `main.tex`, README, cover banner, and other files that the IEEE document does not use. The project therefore has exactly one `main.tex`, and the thesis layout cannot interfere with the IEEE output. The compiler should be pdfLaTeX (the Overleaf default), and the bibliography is handled by Biber automatically.
+- use **New Project > Upload Project** with `overleaf.zip`, or
+- if the project was imported from GitHub, delete the empty `thesis` folder (the submodule) in Overleaf and upload the `overleaf/thesis` folder in its place.
+
+Overleaf then compiles `main.tex` as is (pdfLaTeX, Biber). To refresh the thesis content later, update the submodule, re-run the script, and replace the `thesis` folder in Overleaf. Do not push the generated `overleaf/` folder or the flattened `thesis/` back to GitHub; the repository keeps the submodule.
+
+The bundle contains the same paths as this repository (`main.tex`, `ieee/`, `thesis/chapters/`, `thesis/figs/`, `thesis/references.bib`), but it deliberately leaves out the thesis' own `main.tex`, README, cover banner, and other files that the IEEE document does not use. The project therefore has exactly one `main.tex`, and the thesis layout cannot interfere with the IEEE output.
 
 ## How the Thesis Chapters Are Reused
 
