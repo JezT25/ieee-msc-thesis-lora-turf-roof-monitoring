@@ -94,7 +94,7 @@ The calibration used a separate Icelandic soil sample, not soil from Keldur. Mos
 Uploads to ThingSpeak returned HTTP 200 OK in the controlled tests, with an average upload time of about 1--2~s depending on network conditions, which suits an hourly collection cycle. These tests do not establish uninterrupted cloud availability or upload success during the Keldur deployment.
 
 \subsection{Keldur Deployment}
-All four nodes delivered valid records after the installation on 17 October 2025, over first-to-last spans of about 51 to 130 days (Table~\ref{tab:keldur}). These spans include gaps and are not uninterrupted operating times or confirmed battery lifetimes. The last valid battery voltages (3.49--3.93~V) were all above the configured 3.25~V cutoff, and the nodes were not retrieved, so the reason each node stopped reporting is unknown and battery depletion cannot be named as the cause. Nodes 1, 3, and 5 showed a common interruption of about 145 hours between 17 and 23 December 2025, which cannot be attributed to the radio link, the base station, or the internet connection because no base-station logs were retained. All-zero entries in the ThingSpeak feeds are placeholders for missing data, not real readings.
+All four nodes delivered valid records after the installation on 17 October 2025, over first-to-last spans of about 51 to 130 days (Table~\ref{tab:keldur}). These spans include gaps and are not uninterrupted operating times or confirmed battery lifetimes. The spans are calculated from ThingSpeak \texttt{created\_at} timestamps, which represent upload times rather than the sensor nodes' internal RTC measurement timestamps. The last valid battery voltages (3.49--3.93~V) were all above the configured 3.25~V cutoff, and the nodes were not retrieved, so the reason each node stopped reporting is unknown and battery depletion cannot be named as the cause. Nodes 1, 3, and 5 showed a common interruption of about 145 hours between 17 and 23 December 2025, which cannot be attributed to the radio link, the base station, or the internet connection because no base-station logs were retained. All-zero entries in the ThingSpeak feeds are placeholders for missing data, not real readings.
 
 \begin{table}[!t]
 \renewcommand{\arraystretch}{1.1}
@@ -114,22 +114,22 @@ Node & Last valid record & Span (days) & Final battery (V) \\
 \end{tabular}
 \end{table}
 
-Fig.~\ref{fig:keldur-map} shows the installation layout, and Fig.~\ref{fig:keldur-temps} compares the measured temperatures with the Sámsstaðir station. Air temperature from the externally mounted sensors (nodes 5 and 7) followed the broad variations of the station and showed clearer daily fluctuations than the enclosed sensors (nodes 1 and 3), whose curves were smoother. The mean absolute difference to the station was 3.06--3.27~$^\circ$C. The station is 9.75~km away, so this is a difference between locations and not a sensor accuracy figure. A co-located reference is needed to judge accuracy, and the deployment was not a controlled comparison of sensor placement, so the preference for external placement is only suggested. Soil temperature behaved alike on all four nodes and stayed close to 0~$^\circ$C while air temperature varied between about $-8$ and $+10~^\circ$C, which shows the thermal buffering of the soil and turf. Node 3 reported relative humidity near 100\% for an extended period toward the end of its record, which cannot be treated as reliable, and the cause is unknown.
+Fig.~\ref{fig:keldur-map} shows the installation layout, and Fig.~\ref{fig:keldur-temps} compares air and soil temperatures with the Sámsstaðir station (6222). Air-temperature records from the externally mounted sensors (nodes 5 and 7) generally followed the broad variations observed at the station and showed clearer daily fluctuations than the enclosed sensors (nodes 1 and 3). The mean absolute difference in air temperature was approximately 3.06--3.27~$^\circ$C. Relative-humidity trends from nodes 5 and 7 were broadly comparable with the station, although this comparison is qualitative because the station is approximately 9.75~km away. Node 3 reported relative humidity near 100\% for an extended period toward the end of its record; these readings cannot be treated as reliable, and their cause is unknown. The deployment was not a controlled comparison of sensor placement, so external mounting is only suggested, not established as superior. Soil temperatures from all four nodes behaved similarly and remained close to 0~$^\circ$C while air temperature varied between approximately $-8$ and $+10~^\circ$C, consistent with thermal buffering by the soil and turf. The mean absolute difference between buried-node soil temperatures and the station's ground-level data was approximately 2.77--3.11~$^\circ$C. This is not a sensor-accuracy measure because the station is approximately 9.75~km away and does not provide a depth-matched subsurface soil measurement.
 
 The mesh algorithm was enabled on all nodes, but without packet logs it is not possible to tell whether measurements arrived directly or through another node, so no route statistics are reported. The SD cards of the Keldur nodes have not been retrieved, so the backup cannot be said to have recovered the missing Keldur records.
 
-\begin{figure}[!t]
+\begin{figure*}[!t]
 \centering
-\includegraphics[width=\columnwidth]{results-image6.png}
+\includegraphics[width=0.92\textwidth]{results-image6.png}
 \caption{Locations and installation depths of the four sensor nodes at Keldur.}
 \label{fig:keldur-map}
-\end{figure}
+\end{figure*}
 
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=0.72\textwidth]{results-image7.png}\\[2pt]
 \includegraphics[width=0.72\textwidth]{results-image9.png}
-\caption{Keldur deployment: air temperature (top) and soil temperature (bottom) of the four nodes compared with the Sámsstaðir station (6222). The station's ground-level temperature is the soil reference.}
+\caption{Keldur air-temperature (top) and soil-temperature (bottom) measurements from the four deployed nodes compared with observations from the Sámsstaðir station (6222). The station's ground-level temperature is shown for context only; it is not a co-located or depth-matched soil reference.}
 \label{fig:keldur-temps}
 \end{figure*}
 
