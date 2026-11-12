@@ -88,12 +88,12 @@ Gravimetric (\%) & Mean ADC & HOBO VWC & Polynomial (\%) \\
 \end{tabular}
 \end{table}
 
-The calibration used a separate Icelandic soil sample, not soil from Keldur. Most Keldur readings fall outside the calibrated ADC range of 197.18--484.89: the median raw values were about 527, 575, 768, and 568 for nodes 1, 3, 5, and 7, and only about 31.1\% of node 1 and 0.8\% of node 3 readings lie within the range, with none for nodes 5 and 7. The moisture values converted for Keldur are therefore extrapolations and indicate relative changes only, not validated moisture content. Calibration with soil from the deployment locations and independent reference measurements is needed.
+The calibration used a separate Icelandic soil sample, not soil from the Keldur turf site. Most Keldur readings fall outside the calibrated ADC range of 197.18--484.89: the median raw values were about 527, 575, 768, and 568 for nodes 1, 3, 5, and 7, and only about 31.1\% of node 1 and 0.8\% of node 3 readings lie within the range, with none for nodes 5 and 7. The moisture values converted for Keldur are therefore extrapolations and indicate relative changes only, not validated moisture content. Calibration with soil from the deployment locations and independent reference measurements is needed, and each node should be characterized before deployment and installed with good contact between sensor and soil to obtain accurate absolute readings.
 
 \subsection{Cloud Upload}
 Uploads to ThingSpeak returned HTTP 200 OK in the controlled tests, with an average upload time of about 1--2~s depending on network conditions, which suits an hourly collection cycle. These tests do not establish uninterrupted cloud availability or upload success during the Keldur deployment.
 
-\subsection{Keldur Deployment}
+\subsection{Keldur Turf Site Deployment}
 All four nodes delivered valid records after the installation on 17 October 2025, over first-to-last spans of about 51 to 130 days (Table~\ref{tab:keldur}). These spans include gaps and are not uninterrupted operating times or confirmed battery lifetimes. The spans are calculated from ThingSpeak \texttt{created\_at} timestamps, which represent upload times rather than the sensor nodes' internal RTC measurement timestamps. The last valid battery voltages (3.49--3.93~V) were all above the configured 3.25~V cutoff, and the nodes were not retrieved, so the reason each node stopped reporting is unknown and battery depletion cannot be named as the cause. Nodes 1, 3, and 5 showed a common interruption of about 145 hours between 17 and 23 December 2025, which cannot be attributed to the radio link, the base station, or the internet connection because no base-station logs were retained. All-zero entries in the ThingSpeak feeds are placeholders for missing data, not real readings.
 
 \begin{table}[!t]
@@ -133,5 +133,47 @@ The mesh algorithm was enabled on all nodes, but without packet logs it is not p
 \label{fig:keldur-temps}
 \end{figure*}
 
+\subsection{Comparison with a Separate In-Situ Dataset}
+The comparison with the Sámsstaðir station does not represent conditions beneath the roofs, so the nodes were also compared with the independent Turf-House Monitoring Project data (Section~IV-D). The two sensor sets were not co-located, so the comparison examines whether the nodes recorded broadly consistent variations, not their absolute accuracy.
+
+\textit{Soil temperature.} Daily mean soil temperatures of both sets followed the same sequence of events: cooling after burial, warm periods in early November, a stable low plateau near 0~$^\circ$C from mid-November to mid-December, a warm event at the end of December, and cooling in January (Fig.~\ref{fig:cmp-soil}). All nodes correlated positively with the project soil sensors, with $r$ from 0.75 to 0.98, and node 3 reached at least 0.91 against all four. The nodes were generally colder than the project sensors, with $\Delta$ from about $-0.16$ to $-3.33$~$^\circ$C, and the smallest offsets were for node 3 against the near-surface sensors (about 0.16 and 0.56~$^\circ$C). The project sensors themselves had mean temperatures between 1.1 and 3.1~$^\circ$C, so spatial variation and depth differences contribute to the offsets. The correlations indicate similar temporal behavior, not equivalent absolute temperatures.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{keldur-compare-soil_temp_daily.png}
+\caption{Daily mean soil temperature measured by (a) the four nodes and (b) the four project soil sensors at Keldur.}
+\label{fig:cmp-soil}
+\end{figure}
+
+\textit{Air temperature and humidity.} Against the project outside air sensor, all four nodes correlated positively ($r=0.64$--0.81) but recorded mean temperatures about 2.2--3.5~$^\circ$C lower. The exposed sensors of nodes 5 and 7 had median daily temperature ranges of 6.65 and 7.86~$^\circ$C, larger than the 2.14~$^\circ$C of the project sensor, whereas the enclosed sensors of nodes 1 and 3 showed only 0.76 and 1.15~$^\circ$C, so sensor placement clearly influenced the recorded profile. Because the sensors were not co-located, exposure, radiation, and airflow effects cannot be separated. For relative humidity, nodes 5 and 7 differed from the project sensor by $+1.1$ and $-1.8$ percentage points with moderate correlations (0.62 and 0.60), and readings of at least 95\% occurred in 89\% and 71\% of their valid hours, against 76\% for the project sensor. The enclosed sensors of nodes 1 and 3 started near 40\% and rose gradually toward the project levels, so they did not represent ambient humidity for much of the deployment.
+
+\textit{Soil moisture.} The field ADC readings of nodes 1, 3, and 7 had daily medians of about 530--580, above the laboratory calibration range of about 197--485, and the offset differs between nodes, so each node should be characterized individually. The laboratory points show a decrease of about 0.068 permittivity units per ADC count, and a regression of the daily project-reported permittivity on the daily node ADC gave decreases of 0.054--0.107 units per count in the field, a similar magnitude. Node 5 was excluded because its ADC reading was constant at 768 during about 47.5\% of its valid hours, for reasons the data do not establish. After the exploratory offset adjustment (Table~\ref{tab:cmp-moisture}), the adjusted node permittivity fell within the range of the four project sensors on 53\%, 75\%, and 88\% of the test days for nodes 1, 3, and 7, with $r$ of 0.86, 0.76, and 0.55 against the project mean (Fig.~\ref{fig:cmp-moisture}). The offsets were estimated from the project data, so the second half is a temporal hold-out and not independent validation, and absolute soil-moisture accuracy at Keldur remains unverified.
+
+\begin{table}[!t]
+\renewcommand{\arraystretch}{1.1}
+\caption{Exploratory node-specific ADC offset and agreement with the project soil measurements}
+\label{tab:cmp-moisture}
+\centering
+\footnotesize
+\begin{tabular}{cccc}
+\toprule
+Node & Offset (counts) & Within range (\%) & $r$ \\
+\midrule
+1 & $-254$ & 53 & 0.86 \\
+3 & $-341$ & 75 & 0.76 \\
+7 & $-332$ & 88 & 0.55 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{keldur-compare-moisture_offset.png}
+\caption{Apparent dielectric permittivity of nodes 1, 3, and 7 after node-specific ADC offsets, compared with the range and mean of the project-reported permittivity of the four soil sensors. Gaps are days on which the adjusted ADC fell outside the laboratory calibration range.}
+\label{fig:cmp-moisture}
+\end{figure}
+
+Overall, the nodes captured environmental variations broadly consistent with those of a separate monitoring project, which is evidence of field monitoring capability and temporal consistency, not independent validation of absolute accuracy. Differences in placement, timestamp alignment, and calibration limit the conclusions.
+
 \subsection{Limitations}
-The main limitations are: mesh relaying was observed only qualitatively and no multi-hop performance is quantified; the single-hop range test lacks packet-delivery statistics; the soil-moisture calibration is in-sample, uses soil from another site, and does not cover most Keldur readings; air and soil temperatures were compared with distant stations rather than a co-located reference; and the unretrieved nodes leave the reasons for lost reports open. The deployment used only four nodes.
+The main limitations are: mesh relaying was observed only qualitatively and no multi-hop performance is quantified; the single-hop range test lacks packet-delivery statistics; the soil-moisture calibration is in-sample, uses soil from another site, and does not cover most Keldur readings; air and soil temperatures were compared with a distant station and with a separate, non-co-located dataset rather than a co-located reference, and the soil-moisture offset adjustment used that dataset and is not independent validation; and the unretrieved nodes leave the reasons for lost reports open. The deployment used only four nodes.

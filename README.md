@@ -85,6 +85,8 @@ latexmk -pdf main.tex
 
 - The bibliography uses `biblatex` with the `ieee` style so that the thesis `references.bib` can be used as is. Only cited entries appear in the paper.
 - Claims keep the thesis' wording on limits: the mesh relay was observed qualitatively, the soil-moisture RMSE is in-sample, and the Keldur record spans are not confirmed battery lifetimes.
+- The comparison with the Turf-House Monitoring Project dataset (Section V) is a non-co-located consistency check: its soil-moisture offset adjustment is exploratory and does not establish absolute accuracy.
+- The paper follows the thesis terminology "Keldur turf site" and the 110~mm design burial depth. The paper is in sync with thesis commit `d04716a` (see `thesis/UPSTREAM.txt`).
 
 ## Copyright
 
